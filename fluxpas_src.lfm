@@ -1,0 +1,124 @@
+object frmMain: TfrmMain
+  Left = 671
+  Height = 191
+  Top = 270
+  Width = 332
+  BorderIcons = [biSystemMenu]
+  BorderStyle = bsDialog
+  Caption = 'F.lux GUI written in Pascal'
+  ClientHeight = 191
+  ClientWidth = 332
+  OnClose = FormClose
+  OnCreate = FormCreate
+  OnDestroy = FormDestroy
+  LCLVersion = '1.2.6.0'
+  object btnRunXflux: TButton
+    Left = 232
+    Height = 25
+    Top = 109
+    Width = 75
+    Caption = 'Run F.lux'
+    OnClick = btnRunXfluxClick
+    TabOrder = 0
+  end
+  object edLocation: TEdit
+    Left = 73
+    Height = 33
+    Top = 48
+    Width = 239
+    TabOrder = 1
+    Text = '37.3394, -121.8950'
+  end
+  object lblLocation: TLabel
+    Left = 8
+    Height = 21
+    Top = 53
+    Width = 54
+    Caption = 'Location'
+    ParentColor = False
+  end
+  object lblGetURLLocation: TLabel
+    Cursor = crHandPoint
+    Left = 208
+    Height = 21
+    Top = 85
+    Width = 103
+    Caption = 'Get my location'
+    Font.Color = clBlue
+    ParentColor = False
+    ParentFont = False
+    OnClick = lblGetURLLocationClick
+  end
+  object lblLatitude: TLabel
+    Left = 8
+    Height = 21
+    Top = 85
+    Width = 57
+    Caption = 'Latitude:'
+    ParentColor = False
+  end
+  object lblLongitude: TLabel
+    Left = 8
+    Height = 21
+    Top = 109
+    Width = 68
+    Caption = 'Longitude:'
+    ParentColor = False
+  end
+  object lblXfluxStatus: TLabel
+    Left = 8
+    Height = 21
+    Top = 24
+    Width = 47
+    Caption = 'XFLUX:'
+    ParentColor = False
+  end
+  object btnExit: TButton
+    Left = 232
+    Height = 25
+    Top = 144
+    Width = 75
+    Caption = 'Exit'
+    OnClick = btnExitClick
+    TabOrder = 2
+  end
+  object btnHide: TButton
+    Left = 152
+    Height = 25
+    Top = 144
+    Width = 75
+    Caption = 'Hide'
+    OnClick = btnHideClick
+    TabOrder = 3
+  end
+  object SystrayIcon: TTrayIcon
+    PopUpMenu = PopupMenu1
+    OnDblClick = SystrayIconDblClick
+    left = 104
+    top = 8
+  end
+  object PopupMenu1: TPopupMenu
+    left = 152
+    top = 8
+    object MenuItem1: TMenuItem
+      Caption = 'Enable Flux'
+      OnClick = MenuItem1Click
+    end
+    object MenuItem2: TMenuItem
+      Caption = 'Show GUI'
+      OnClick = MenuItem2Click
+    end
+    object MenuItem3: TMenuItem
+      Caption = '-'
+    end
+    object MenuItem4: TMenuItem
+      Caption = 'Exit'
+      OnClick = MenuItem4Click
+    end
+  end
+  object Timer1: TTimer
+    OnTimer = Timer1Timer
+    left = 160
+    top = 40
+  end
+end
