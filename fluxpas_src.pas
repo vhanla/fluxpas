@@ -14,7 +14,7 @@ interface
 
 uses
   Classes, SysUtils, FileUtil, Forms, Controls, Graphics, Dialogs, ExtCtrls,
-  StdCtrls, LCLIntf, Menus, Process, IniFiles;
+  StdCtrls, LCLIntf, Menus, Process, IniFiles, simpleipc, BaseUnix;
 type
 
   { TfrmMain }
@@ -57,16 +57,22 @@ type
     procedure KillXflux;
     procedure ReadPreferences;
     procedure SavePreferences;
+
+    procedure InitIPCServer(const IPCID: String);
   public
     { public declarations }
   end;
 
+const
+  UNIQUEID = 'fluxpas_gui';
 var
   frmMain: TfrmMain;
   fluxPID: String;
   portable: Boolean = True;
   hideonstart: Boolean = False;
   prefFilePath: String;
+
+  pIPCserver : TSimpleIPCServer;
 
 implementation
 
@@ -113,6 +119,17 @@ begin
   end;
 end;
 
+procedure TfrmMain.InitIPCServer(const IPCID: String);
+begin
+  if not Assigned(pIPCserver) then
+  begin
+    pIPCserver := TSimpleIPCServer.Create(nil);
+    pIPCserver.ServerID:=IPCID;
+    pIPCserver.Global:=True;
+    pIPCserver.StartServer;
+  end;
+end;
+
 procedure TfrmMain.btnRunXfluxClick(Sender: TObject);
 begin
   MenuItem1Click(Sender);
@@ -140,7 +157,20 @@ begin
 end;
 
 procedure TfrmMain.FormCreate(Sender: TObject);
+var
+  IPCClient: TSimpleIPCClient;
 begin
+  // prevent more than one instance of this application
+  IPCClient := TSimpleIPCClient.Create(nil);
+  IPCClient.ServerID:=UNIQUEID;
+  if not IPCClient.ServerRunning then
+   InitIPCServer(UNIQUEID)
+  else
+  begin
+   IPCClient.Free;
+   FpKill(FpGetpid, 9);
+  end;
+
   if ExtractFilePath(ParamStr(0)) <> '/usr/bin/' then
   begin
     portable:=True;
@@ -162,6 +192,7 @@ end;
 procedure TfrmMain.FormDestroy(Sender: TObject);
 begin
   KillXflux;
+  pIPCserver.Free;
 end;
 
 procedure TfrmMain.FormShow(Sender: TObject);
