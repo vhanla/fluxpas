@@ -11,6 +11,7 @@ object frmMain: TfrmMain
   OnClose = FormClose
   OnCreate = FormCreate
   OnDestroy = FormDestroy
+  OnShow = FormShow
   LCLVersion = '1.2.6.0'
   object btnRunXflux: TButton
     Left = 232
@@ -90,6 +91,15 @@ object frmMain: TfrmMain
     Caption = 'Hide'
     OnClick = btnHideClick
     TabOrder = 3
+  end
+  object chkhide: TCheckBox
+    Left = 8
+    Height = 25
+    Top = 144
+    Width = 104
+    Caption = 'Start in tray'
+    OnChange = chkhideChange
+    TabOrder = 4
   end
   object SystrayIcon: TTrayIcon
     PopUpMenu = PopupMenu1

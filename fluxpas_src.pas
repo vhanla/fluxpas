@@ -14,7 +14,7 @@ interface
 
 uses
   Classes, SysUtils, FileUtil, Forms, Controls, Graphics, Dialogs, ExtCtrls,
-  StdCtrls, LCLIntf, Menus, Process;
+  StdCtrls, LCLIntf, Menus, Process, IniFiles;
 type
 
   { TfrmMain }
@@ -23,6 +23,7 @@ type
     btnRunXflux: TButton;
     btnExit: TButton;
     btnHide: TButton;
+    chkhide: TCheckBox;
     edLocation: TEdit;
     ImageList1: TImageList;
     lblLocation: TLabel;
@@ -40,9 +41,11 @@ type
     procedure btnRunXfluxClick(Sender: TObject);
     procedure btnExitClick(Sender: TObject);
     procedure btnHideClick(Sender: TObject);
+    procedure chkhideChange(Sender: TObject);
     procedure FormClose(Sender: TObject; var CloseAction: TCloseAction);
     procedure FormCreate(Sender: TObject);
     procedure FormDestroy(Sender: TObject);
+    procedure FormShow(Sender: TObject);
     procedure lblGetURLLocationClick(Sender: TObject);
     procedure MenuItem1Click(Sender: TObject);
     procedure MenuItem2Click(Sender: TObject);
@@ -52,6 +55,8 @@ type
   private
     { private declarations }
     procedure KillXflux;
+    procedure ReadPreferences;
+    procedure SavePreferences;
   public
     { public declarations }
   end;
@@ -59,6 +64,9 @@ type
 var
   frmMain: TfrmMain;
   fluxPID: String;
+  portable: Boolean = True;
+  hideonstart: Boolean = False;
+  prefFilePath: String;
 
 implementation
 
@@ -77,6 +85,34 @@ begin
   Sleep(250);
 end;
 
+procedure TfrmMain.ReadPreferences;
+var
+  ini: TIniFile;
+begin
+  ini := TIniFile.Create(prefFilePath);
+  try
+    edLocation.Text := ini.ReadString('xflux','location','37.3394, -121.8950');
+    chkhide.Checked := ini.ReadBool('gui', 'hidden', false);
+    hideonstart:=chkhide.Checked;
+  finally
+    ini.Free;
+
+  end;
+end;
+
+procedure TfrmMain.SavePreferences;
+var
+  ini: TIniFile;
+begin
+  ini := TIniFile.Create(prefFilePath);
+  try
+    ini.WriteString('xflux','location',edLocation.Text);
+    ini.WriteBool('gui', 'hidden', chkhide.Checked);
+  finally
+    ini.Free;
+  end;
+end;
+
 procedure TfrmMain.btnRunXfluxClick(Sender: TObject);
 begin
   MenuItem1Click(Sender);
@@ -92,6 +128,11 @@ begin
   Hide;
 end;
 
+procedure TfrmMain.chkhideChange(Sender: TObject);
+begin
+  SavePreferences;
+end;
+
 procedure TfrmMain.FormClose(Sender: TObject; var CloseAction: TCloseAction);
 begin
   CloseAction:=caNone;
@@ -100,13 +141,37 @@ end;
 
 procedure TfrmMain.FormCreate(Sender: TObject);
 begin
+  if ExtractFilePath(ParamStr(0)) <> '/usr/bin/' then
+  begin
+    portable:=True;
+    prefFilePath:=ExtractFilePath(ParamStr(0))+'fluxpaspref.ini';
+  end
+  else
+  begin
+    portable:=False;
+    prefFilePath:='~/.fluxpaspref.ini';
+  end;
+
   SystrayIcon.Hint:='F.lux GUI';
   SystrayIcon.Show;
+
+  ReadPreferences;
+
 end;
 
 procedure TfrmMain.FormDestroy(Sender: TObject);
 begin
   KillXflux;
+end;
+
+procedure TfrmMain.FormShow(Sender: TObject);
+begin
+  if hideonstart then
+  begin
+    hideonstart:=False;
+   btnRunXfluxClick(Sender);
+   Hide;
+  end;
 end;
 
 procedure TfrmMain.lblGetURLLocationClick(Sender: TObject);
@@ -144,6 +209,7 @@ begin
           P.Free;
           Sleep(250);
           MenuItem1.Checked:=True;
+          SavePreferences;
         end
         else
         ShowMessage('Error, xflux not found in application''s directory!');
