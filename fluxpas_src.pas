@@ -149,7 +149,7 @@ begin
   else
   begin
     portable:=False;
-    prefFilePath:='~/.fluxpaspref.ini';
+    prefFilePath:='.fluxpaspref.ini';
   end;
 
   SystrayIcon.Hint:='F.lux GUI';
