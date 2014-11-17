@@ -71,6 +71,7 @@ var
   portable: Boolean = True;
   hideonstart: Boolean = False;
   prefFilePath: String;
+  xfluxFile: String;
 
   pIPCserver : TSimpleIPCServer;
 
@@ -85,7 +86,7 @@ var
   P: TProcess;
 begin
   P := TProcess.Create(nil);
-  P.CommandLine:='killall xflux';
+  P.CommandLine:='killall '+xfluxFile;
   P.Options:=P.Options - [poWaitOnExit];
   P.Execute;
   Sleep(250);
@@ -171,6 +172,19 @@ begin
    FpKill(FpGetpid, 9);
   end;
 
+  {$IFDEF CPU32}
+    xfluxFile := 'xflux_32';
+  {$ENDIF}
+  {$IFDEF CPU64}
+    xfluxFile := 'xflux_64';
+  {$ENDIF}
+
+  if not FileExists(ExtractFilePath(ParamStr(0)) + xfluxFile) then
+  begin
+    ShowMessage('Error, '+xfluxFile+' not found!');
+    FpKill(FpGetpid, 9);
+  end;
+
   if ExtractFilePath(ParamStr(0)) <> '/usr/bin/' then
   begin
     portable:=True;
@@ -229,12 +243,12 @@ begin
         lblLatitude.Caption:='Latitude: '+FloatToStr(l);
         g := StrToFloat(lst[1]);
         lblLongitude.Caption:='Longitude: '+FloatToStr(g);
-        if FileExists(ExtractFilePath(ParamStr(0))+'xflux') then
+        if FileExists(ExtractFilePath(ParamStr(0))+xfluxFile) then
         begin
           P := TProcess.Create(nil);
           KillXflux;
           pars := '-l '+lst[0]+' -g '+lst[1];
-          P.CommandLine:='xflux '+pars;
+          P.CommandLine:=xfluxFile+' '+pars;
           P.Options:=P.Options - [poWaitOnExit];
           P.Execute;
           P.Free;
@@ -280,22 +294,22 @@ var
   status: String;
   ls: TStringList;
 begin
-  RunCommandInDir(ExtractFilePath(ParamStr(0)),'pidof xflux',status);
-  //RunCommandInDir(ExtractFilePath(ParamStr(0)),'ps aux | grep "xflux -l"',status);
+  RunCommandInDir(ExtractFilePath(ParamStr(0)),'pidof '+xfluxFile,status);
+  //RunCommandInDir(ExtractFilePath(ParamStr(0)),'ps aux | grep "'+xfluxFile+' -l"',status);
   if strlen(PChar(Trim(status)))>0 then
   begin
     ls := TStringList.Create;
     try
       ls.Delimiter:=' ';
       ls.DelimitedText:=status;
-      lblXfluxStatus.Caption:='XFLUX : Enabled - PID '+ls[0];
+      lblXfluxStatus.Caption:='xflux status : Enabled - PID '+ls[0];
     finally
       ls.Free;
     end;
   end
   else
   begin
-    lblXfluxStatus.Caption:='XFLUX : Disabled';
+    lblXfluxStatus.Caption:='xflux status : Disabled';
   end;
 end;
 
