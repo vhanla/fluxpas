@@ -1,6 +1,10 @@
 {
  Fluxpas : Simple GUI for XFLUX (f.lux) for Linux OS
  written by vhanla
+
+ CHANGELOG:
+ 2014-11-17: First basic version
+
 }
 unit fluxpas_src;
 
@@ -20,6 +24,7 @@ type
     btnExit: TButton;
     btnHide: TButton;
     edLocation: TEdit;
+    ImageList1: TImageList;
     lblLocation: TLabel;
     lblGetURLLocation: TLabel;
     lblLatitude: TLabel;
@@ -95,7 +100,6 @@ end;
 
 procedure TfrmMain.FormCreate(Sender: TObject);
 begin
-  SystrayIcon.Icon.LoadFromFile(ExtractFilePath(ParamStr(0))+'icon.ico');
   SystrayIcon.Hint:='F.lux GUI';
   SystrayIcon.Show;
 end;
